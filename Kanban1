@@ -1,0 +1,95 @@
+using System;
+using System.Windows.Forms;
+using Microsoft.Office.Interop.Excel;
+using _Excel = Microsoft.Office.Interop.Excel;
+
+namespace ExportDataToExcel
+{
+    public partial class Form1 : Form
+    {
+        private bool _closing = false;
+
+        _Application excelApp = new _Excel.Application();//Reference to application
+        Workbook wb;//File opening
+        Worksheet ws;//All sheets
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            Show();
+            
+            //Open Excel file
+            wb = excelApp.Workbooks.Open(@"C:\Users\GemmaThomas-Green\OneDrive - EFFECT Photonics\Kanban project\Kanban Sheet NEW testing.xlsx");
+
+            //Able to see the Excel workbook sheet 3
+            excelApp.Visible = true;
+            ws = wb.Worksheets[3];
+            ws.Activate();
+
+            //Access method that writes 'Gemma' to cell A164
+            WriteToCell(164, 0, "Gemma");
+
+            //Reads the WriteToCell method
+            MessageBox.Show(ReadCell(164, 0));
+
+            //Save Excel file
+            wb.Save();
+
+            //Close Excel file
+            excelApp.Workbooks.Close();
+
+            //Close Excel app
+            excelApp.Quit();
+        }
+
+        public void WriteToCell(int row, int coll, string set)
+        {
+            //Increase from 0 to 1
+            row++;
+            coll++;
+
+            //If words in the cell ARE null then write
+            if (ws.Cells[row, coll].Value2 == null)
+            {
+                ws.Cells[row, coll].Value2 = set;
+            }
+
+            else
+            {
+                //Otherwise you get this message
+                MessageBox.Show("Choose another cell");
+            }
+        }
+
+        public string ReadCell(int row, int coll)
+        {
+            //Increase from 0 to 1
+            row++;
+            coll++;
+
+            //If words in the cell ARE NOT null then write
+            if (ws.Cells[row, coll].Value2 != null)
+            {
+                return ws.Cells[row, coll].Value2;
+            }
+
+            else
+            {
+                //Otherwise you get this message
+                return "No value in this cell";
+            }
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            //Check if there is data in the rows and user said 'No'
+            if (e.CloseReason == CloseReason.UserClosing && !_closing)
+            {
+                e.Cancel = MessageBox.Show("Are you sure you want to exit?\nThere might be data that could be lost if you close?", "Close application", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No;
+            }
+        }
+    }
+}
